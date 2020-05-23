@@ -11,7 +11,7 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
     use DefaultDatetimeFormat;
-    
+
     /**
      * The attributes that are mass assignable.
      *
