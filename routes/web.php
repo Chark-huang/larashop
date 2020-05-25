@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('alipay', function (){
+   return app('alipay')->web([
+      'out_trade_no' => time(),
+       'total_amount' => '2',
+       'subject' => 'test subject1 - 测试'
+   ]);
+});
 
 Route::redirect('/','/products')->name('root');
 Route::get('products','ProductsController@index')->name('products.index');
