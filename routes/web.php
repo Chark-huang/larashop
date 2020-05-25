@@ -12,13 +12,6 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('alipay', function (){
-   return app('alipay')->web([
-      'out_trade_no' => time(),
-       'total_amount' => '2',
-       'subject' => 'test subject1 - 测试'
-   ]);
-});
 
 Route::redirect('/','/products')->name('root');
 Route::get('products','ProductsController@index')->name('products.index');
@@ -49,8 +42,16 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('orders','OrdersController@index')->name('orders.index');
     Route::post('orders','OrdersController@store')->name('orders.store');
     Route::get('orders/{order}','OrdersController@show')->name('orders.show');
+
+    //支付宝
+    //支付路由
+    Route::get('payment/{order}/alipay','PaymentController@payByAlipay')->name('payment.alipay');
+    //回调路由
+    Route::get('payment/alipay/return','PaymentController@alipayReturn')->name('payment.alipay.return');
+
 });
 
+Route::post('payment/alipay/notify','PaymentController@alipayNotify')->name('payment.alipay.notify');
 Route::get('products/{product}','ProductsController@show')->name('products.show');
 
 
