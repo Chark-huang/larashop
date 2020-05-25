@@ -68,7 +68,6 @@ class OrderService
         //触发定时关闭订单任务
         dispatch(new CloseOrder($order,config('app.order_ttl')));
         return $order;
-
     }
 
 }
