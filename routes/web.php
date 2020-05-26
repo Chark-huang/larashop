@@ -53,6 +53,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::post('orders/{order}/received', 'OrdersController@received')->name('orders.received'); //评价
     Route::post('orders/{order}/apply_refund', 'OrdersController@applyRefund')->name('orders.apply_refund'); //申请退款
 
+    Route::get('coupon_codes/{code}', 'CouponCodesController@show')->name('coupon_codes.show');
+
 });
 
 Route::post('payment/alipay/notify','PaymentController@alipayNotify')->name('payment.alipay.notify');
