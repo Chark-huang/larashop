@@ -42,6 +42,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('orders','OrdersController@index')->name('orders.index');
     Route::post('orders','OrdersController@store')->name('orders.store');
     Route::get('orders/{order}','OrdersController@show')->name('orders.show');
+    Route::get('orders/{order}/review', 'OrdersController@review')->name('orders.review.show');
+    Route::post('orders/{order}/review', 'OrdersController@sendReview')->name('orders.review.store');
 
     //支付宝
     //支付路由
