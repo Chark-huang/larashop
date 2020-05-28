@@ -7,9 +7,18 @@ use Illuminate\Support\Str;
 
 class Product extends Model
 {
+
+    const TYPE_NORMAL = 'normal';
+    const TYPE_CROWDFUNDING = 'crowdfunding';
+    public static $typeMap = [
+        self::TYPE_NORMAL  => '普通商品',
+        self::TYPE_CROWDFUNDING => '众筹商品',
+    ];
+
+
     protected $fillable = [
         'title', 'description', 'image', 'on_sale',
-        'rating', 'sold_count', 'review_count', 'price'
+        'rating', 'sold_count', 'review_count', 'price', 'type'
     ];
 
     protected $casts = [
@@ -21,12 +30,16 @@ class Product extends Model
     {
         return $this->hasMany(ProductSku::class);
     }
-
+    // 商品类目
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
-
+    // 众筹信息
+    public function crowdFund()
+    {
+        return $this->hasOne(CrowdfundingProduct::class);
+    }
     public function getImageUrlAttribute()
     {
         // 如果 image 本身就是完整的 url 就直接返回
