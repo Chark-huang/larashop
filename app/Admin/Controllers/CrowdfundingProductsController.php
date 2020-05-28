@@ -2,13 +2,10 @@
 
 namespace App\Admin\Controllers;
 
-use App\Models\Category;
 use App\Models\CrowdfundingProduct;
 use App\Models\Product;
-use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
-use Encore\Admin\Show;
 
 class CrowdfundingProductsController extends CommonProductsController
 {
@@ -45,5 +42,5 @@ class CrowdfundingProductsController extends CommonProductsController
         $form->text('crowdfunding.target_amount', '众筹目标金额')->rules('required|numeric|min:0.01');
         $form->datetime('crowdfunding.end_at', '众筹结束时间')->rules('required|date');
     }
-    
+
 }
