@@ -49,8 +49,10 @@
             <!-- 订单发货开始 -->
             <!-- 如果订单未发货，展示发货表单 -->
             @if($order->ship_status === \App\Models\Order::SHIP_STATUS_PENDING)
-                <!-- 加上这个判断条件 -->
-                @if($order->refund_status !== \App\Models\Order::REFUND_STATUS_SUCCESS)
+                <!-- 加上这个判断条件 1.订单未普通商品,并且处于代发货状态,并且订单没有退款成功.  2.订单为众筹商品,并且已结束, 并且处于代发货状态,并且订单没有退款成功 -->
+                @if( ($order->type === \App\Models\Order::TYPE_NORMAL ||
+                      $order->items[0]->product->crowdfunding->status === \App\Models\CrowdfundingProduct::STATUS_SUCCESS) &&
+                     $order->refund_status !== \App\Models\Order::REFUND_STATUS_SUCCESS)
                 <tr>
                     <td colspan="4">
                         <form action="{{ route('admin.orders.ship', [$order->id]) }}" method="post" class="form-inline">

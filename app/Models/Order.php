@@ -8,6 +8,9 @@ use Ramsey\Uuid\Uuid;
 
 class Order extends Model
 {
+    const TYPE_NORMAL  = 'normal';
+    const TYPE_CROWDFUNDING = 'crowdfunding';
+
     const REFUND_STATUS_PENDING = 'pending';
     const REFUND_STATUS_APPLIED = 'applied';
     const REFUND_STATUS_PROCESSING = 'processing';
@@ -17,6 +20,11 @@ class Order extends Model
     const SHIP_STATUS_PENDING = 'pending';
     const SHIP_STATUS_DELIVERED = 'delivered';
     const SHIP_STATUS_RECEIVED = 'received';
+
+    public static $typeMap = [
+        self::TYPE_NORMAL => '普通商品订单',
+        self::TYPE_CROWDFUNDING => '众筹商品订单',
+    ];
 
     public static $refundStatusMap = [
         self::REFUND_STATUS_PENDING    => '未退款',
@@ -34,6 +42,7 @@ class Order extends Model
     ];
 
     protected $fillable = [
+        'type',
         'no',
         'address',
         'total_amount',

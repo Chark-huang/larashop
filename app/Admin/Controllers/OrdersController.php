@@ -142,7 +142,11 @@ class OrdersController extends AdminController
         if ($order->ship_status !== Order::SHIP_STATUS_PENDING) {
             throw new InvalidRequestException('订单已发货');
         }
-        //
+        // 3.众筹订单只有在众筹成功之后发货
+        if ($order->type === Order::TYPE_CROWDFUNDING &&
+            $order->items[0]->product->crowdfunding->status !== CrowdfundingProduct::STATUS_SUCCESS) {
+            throw new InvalidRequestException('众筹订单只能在众筹成功之后发货');
+        }
         $data = $this->validate($request, [
             'express_company' => ['required'],
             'express_no' => ['required'],
