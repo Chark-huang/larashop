@@ -36,7 +36,7 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
     // 众筹信息
-    public function crowdFund()
+    public function crowdfunding()
     {
         return $this->hasOne(CrowdfundingProduct::class);
     }
