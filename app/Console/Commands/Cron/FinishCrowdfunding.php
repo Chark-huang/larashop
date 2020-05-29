@@ -2,11 +2,8 @@
 
 namespace App\Console\Commands\Cron;
 
-use App\Http\Requests\CrowdFundingOrderRequest;
 use App\Jobs\RefundCrowdfundingOrders;
 use App\Models\CrowdfundingProduct;
-use App\Models\Order;
-use App\Services\OrderService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -17,7 +14,7 @@ class FinishCrowdfunding extends Command
      *
      * @var string
      */
-    protected $signature = 'command:finish-crowdfunging';
+    protected $signature = 'cron:finish-crowdfunding';
 
     /**
      * The console command description.
@@ -43,7 +40,7 @@ class FinishCrowdfunding extends Command
      */
     public function handle()
     {
-        CrowdFundingOrderRequest::query()
+        CrowdfundingProduct::query()
             // 众筹结束时间早于当前时间
             ->where('end_at', '<=', Carbon::now())
             // 众筹状态为众筹中
