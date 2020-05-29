@@ -50,4 +50,12 @@ class CrowdFundingOrderRequest extends Request
             ],
         ];
     }
+
+    public function attributes()
+    {
+        return [
+            'amount' => '数量',
+            'address_id' => '地址'
+        ];
+    }
 }

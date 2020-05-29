@@ -26,7 +26,7 @@ class OrdersAddType extends Migration
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->drop('type');
+            $table->dropColumn('type');
         });
     }
 }
