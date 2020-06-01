@@ -44,7 +44,7 @@ class InstallmentItem extends Model
     {
         // 小数点计算需要用 bcmath 扩展提供的函数
         Log::info('typeof->base'.gettype($this->base));
-        Log::info('typeof->base'.gettype($this->fee));
+        Log::info('typeof->fee'.gettype($this->fee));
         $total = big_number($this->base)->add($this->fee);
         if (!is_null($this->fine)) {
             $total = $total->add($this->fine);

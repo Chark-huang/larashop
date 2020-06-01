@@ -8,12 +8,15 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Services\CategoryService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use function foo\func;
 
 class ProductsController extends Controller
 {
     public function index(Request $request, CategoryService $categoryService)
     {
+        $data = 'hello';
+        Log::info('data --- '.$data);
         // 创建一个查询构造器
         $builder = Product::query()->where('on_sale',true);
 
