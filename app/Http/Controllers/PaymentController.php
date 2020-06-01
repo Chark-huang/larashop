@@ -44,6 +44,7 @@ class PaymentController extends Controller
     {
         //1. 校验输入参数
         $data = app('alipay')->verify();
+        Log::info('alipayNotify->$data->',$data);
         //2. 如果订单状态不是成功或者结束,则不走后续的逻辑
         // 所有交易状态: https://docs.open.alipay.com/59/103672
         if (!in_array($data->trade_status, ['TRADE_SUCCESS','TRADE_FINISHED'])){
@@ -55,6 +56,7 @@ class PaymentController extends Controller
         if (!$order) {
             return 'fail';
         }
+        Log::info('alipayNotify->$order->',$order);
         // 如果这笔订单的状态已经是已支付
         if ($order->paid_at) {
             // 返回数据给支付宝

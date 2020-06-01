@@ -35,7 +35,7 @@ class OrdersController extends AdminController
         $grid = new Grid(new Order());
 
         // 只显示已支付的订单, 并且默认按支付时间的倒叙进行排序
-        $grid->model()->whereNotNull('paid_at')->orderBy('paid_at', 'desc');
+        $grid->model()->orderBy('paid_at', 'desc');
 
         $grid->no('订单流水号');
         // 展示关联关系的字段时, 使用 column 方法
@@ -103,7 +103,7 @@ class OrdersController extends AdminController
 
         return $show;
     }
-
+    
     /**
      * Make a form builder.
      *
