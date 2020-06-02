@@ -59,8 +59,8 @@ class InstallmentsController extends Controller
             'total_amount' => $nextItem->total,
             'subject'      => '支付 Laravel Shop 的分期订单：'.$installment->no,
             // 这里的 notify_url 和 return_url 可以覆盖掉在 AppServiceProvider 设置的回调地址
-            'notify_url'   => ngrok_url('installments.alipay.notify'),
-            'return_url'   => route('installments.alipay.return'),
+//            'notify_url'   => ngrok_url('installments.alipay.notify'),
+//            'return_url'   => route('installments.alipay.return'),
         ]);
     }
 
@@ -81,7 +81,7 @@ class InstallmentsController extends Controller
     {
         // 校验支付宝回调参数是否正确
         $data = app('alipay')->verify();
-        Log::info('alipay --- data ---'.$data);
+        Log::debug('Installment alipay data ',$data->all());
         // 如果订单状态不是成功或者结束, 则不走后续操作
         if (!in_array($data->trade_status, ['TRADE_SUCCESS', 'TRADE_FINISHED'])) {
             return app('alipay')->success();

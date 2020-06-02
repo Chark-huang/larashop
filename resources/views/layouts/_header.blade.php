@@ -42,6 +42,7 @@
                             {{ Auth::user()->name }}
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a href="{{ route('cart.index') }}" class="dropdown-item">购物车</a>
                             <a href="{{ route('user_addresses.index') }}" class="dropdown-item">收货地址</a>
                             <a href="{{ route('orders.index') }}" class="dropdown-item">我的订单</a>
                             <a href="{{ route('installments.index') }}" class="dropdown-item">分期付款</a>

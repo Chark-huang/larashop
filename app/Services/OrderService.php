@@ -8,6 +8,7 @@ use App\Exceptions\CouponCodeUnavailableException;
 use App\Exceptions\InternalException;
 use App\Exceptions\InvalidRequestException;
 use App\Jobs\CloseOrder;
+use App\Jobs\RefundInstallmentOrder;
 use App\Models\CouponCode;
 use App\Models\Order;
 use App\Models\ProductSku;
@@ -107,7 +108,7 @@ class OrderService
             $order = new Order([
                 'address' =>
                     [
-                        'address' =>$address->full_address,
+                        'address' => $address->full_address,
                         'zip' => $address->zip,
                         'contact_name' => $address->contact_name,
                         'contact_phone' => $address->contact_phone,
@@ -122,7 +123,7 @@ class OrderService
             $order->save();
             $item = $order->items()->make([
                 'amount' => $amount,
-                'price'  => $sku->price
+                'price' => $sku->price
             ]);
             $item->product()->associate($sku->product_id);
             $item->productSku()->associate($sku);
@@ -138,7 +139,7 @@ class OrderService
         $crowdfundingTtl = $sku->product->crowdfunding->end_at->getTimestamp() - time();
 
         // 剩余时间与默认订单关闭时间取较小值作为订单的关闭时间
-        dispatch(new CloseOrder($order,min(config('app.order_ttl'), $crowdfundingTtl)));
+        dispatch(new CloseOrder($order, min(config('app.order_ttl'), $crowdfundingTtl)));
 
         return $order;
     }
@@ -179,6 +180,14 @@ class OrderService
                         'refund_status' => Order::REFUND_STATUS_SUCCESS,
                     ]);
                 }
+                break;
+            case 'installment':
+                $order->update([
+                    'refund_no' => Order::getAvailableRefundNo(), //生成退款订单号
+                    'refund_status' => Order::REFUND_STATUS_PROCESSING, // 将退款状态改为退款中
+                ]);
+                // 触发退款异步任务
+                dispatch(new RefundInstallmentOrder($order));
                 break;
             default:
                 // 原则上不可能出现，这个只是为了代码健壮性
