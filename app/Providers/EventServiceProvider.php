@@ -4,12 +4,14 @@ namespace App\Providers;
 
 use App\Events\OrderPaid;
 use App\Events\OrderReviewed;
+use App\Listeners\QueryListener;
 use App\Listeners\SendOrderPaidMail;
 use App\Listeners\UpadteProductRating;
 use App\Listeners\UpdateCrowdfundingProductProgress;
 use App\Listeners\UpdateProductSoldCount;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 

@@ -19,3 +19,21 @@ function big_number($number, $scale = 2)
 {
     return new \Moontoast\Math\BigNumber($number,$scale);
 }
+
+//监听SQL语句
+function log_sql(){
+    \Illuminate\Support\Facades\DB::listen(function($query){
+        $tmp = str_replace('?', '"'.'%s'.'"', $query->sql);
+        $qBindings = [];
+        foreach ($query->bindings as $key => $value) {
+            if (is_numeric($key)) {
+                $qBindings[] = $value;
+            } else {
+                $tmp = str_replace(':'.$key, '"'.$value.'"', $tmp);
+            }
+        }
+        $tmp = vsprintf($tmp, $qBindings);
+        $tmp = str_replace("\\", "", $tmp);
+        \Illuminate\Support\Facades\Log::channel('sql')->debug(' execution time: '.$query->time.'ms; '.$tmp."\n\n\t");
+    });
+}
