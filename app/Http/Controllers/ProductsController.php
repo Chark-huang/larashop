@@ -8,6 +8,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\SearchBuilders\ProductSearchBuilder;
 use App\Services\CategoryService;
+use App\Services\ProductService;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -81,12 +82,7 @@ class ProductsController extends Controller
         // 通过 collect 函数将返回结果转为集合, 并通过集合的 pluck 方法去到返回的商品 ID 数组
         $productIds = collect($result['hits']['hits'])->pluck('_id')->all();
 
-        // 通过 whereIn 方法从数据库中读取商品数据
-        $products = Product::query()
-            ->whereIn('id', $productIds)
-            ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $productIds)))
-            ->get();
-
+        $products = Product::query()->byIds($productIds)->get();
 
         // 返回一个 LengthAwarePaginator 对象
         $pager = new LengthAwarePaginator($products, $result['hits']['total']['value'], $perPage, $page, [
@@ -145,10 +141,18 @@ class ProductsController extends Controller
             ->orderBy('reviewed_at', 'desc')
             ->limit(10) // 取10条
             ->get();
+
+        $similarProductIds = (new ProductService())->getSimilarProductIds($product,4);
+        // 根据 Elasticsearch 搜索出来的商品 ID 从数据库中读取商品数据
+        $similarProducts = Product::query()->byIds($similarProductIds)->get();
+
+
+
         return view('products.show', [
             'product' => $product,
             'favored' => $favored,
-            'reviews' => $reviews
+            'reviews' => $reviews,
+            'similar' => $similarProducts,
         ]);
     }
 

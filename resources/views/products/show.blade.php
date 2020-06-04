@@ -16,7 +16,8 @@
                             @if($product->type === \App\Models\Product::TYPE_CROWDFUNDING)
                                 <div class="crowdfunding-info">
                                     <div class="have-text">已筹到</div>
-                                    <div class="total-amount"><span class="symbol">￥</span>{{ $product->crowdfunding->total_amount }}</div>
+                                    <div class="total-amount"><span
+                                            class="symbol">￥</span>{{ $product->crowdfunding->total_amount }}</div>
                                     <!-- 这里使用了 Bootstrap 的进度条组件 -->
                                     <div class="progress">
                                         <div class="progress-bar progress-bar-success progress-bar-striped"
@@ -28,18 +29,21 @@
                                         </div>
                                     </div>
                                     <div class="progress-info">
-                                        <span class="current-progress">当前进度：{{ $product->crowdfunding->percent }}%</span>
+                                        <span
+                                            class="current-progress">当前进度：{{ $product->crowdfunding->percent }}%</span>
                                         <span class="float-right user-count">{{ $product->crowdfunding->user_count }}名支持者</span>
                                     </div>
                                     <!-- 如果众筹状态是众筹中，则输出提示语 -->
                                     @if ($product->crowdfunding->status === \App\Models\CrowdfundingProduct::STATUS_FUNDING)
                                         <div>此项目必须在
-                                            <span class="text-red">{{ $product->crowdfunding->end_at->format('Y-m-d H:i:s') }}</span>
+                                            <span
+                                                class="text-red">{{ $product->crowdfunding->end_at->format('Y-m-d H:i:s') }}</span>
                                             前得到
                                             <span class="text-red">￥{{ $product->crowdfunding->target_amount }}</span>
                                             的支持才可成功，
                                             <!-- Carbon 对象的 diffForHumans() 方法可以计算出与当前时间的相对时间，更人性化 -->
-                                            筹款将在<span class="text-red">{{ $product->crowdfunding->end_at->diffForHumans(now()) }}</span>结束！
+                                            筹款将在<span
+                                                class="text-red">{{ $product->crowdfunding->end_at->diffForHumans(now()) }}</span>结束！
                                         </div>
                                     @endif
                                 </div>
@@ -47,10 +51,13 @@
                             <!-- 原普通商品模块开始 -->
                                 <div class="price"><label>价格</label><em>￥</em><span>{{ $product->price }}</span></div>
                                 <div class="sales_and_reviews">
-                                    <div class="sold_count">累计销量 <span class="count">{{ $product->sold_count }}</span></div>
-                                    <div class="review_count">累计评价 <span class="count">{{ $product->review_count }}</span></div>
+                                    <div class="sold_count">累计销量 <span class="count">{{ $product->sold_count }}</span>
+                                    </div>
+                                    <div class="review_count">累计评价 <span
+                                            class="count">{{ $product->review_count }}</span></div>
                                     <div class="rating" title="评分 {{ $product->rating }}">评分
-                                        <span class="count">{{ str_repeat('★', floor($product->rating)) }}{{ str_repeat('☆', 5 - floor($product->rating)) }}</span>
+                                        <span
+                                            class="count">{{ str_repeat('★', floor($product->rating)) }}{{ str_repeat('☆', 5 - floor($product->rating)) }}</span>
                                     </div>
                                 </div>
                                 <!-- 原普通商品模块结束 -->
@@ -81,7 +88,7 @@
                                 @else
                                     <button class="btn btn-success btn-favor">❤ 收藏</button>
                                 @endif
-                                <!-- 众筹商品下单按钮开始 -->
+                            <!-- 众筹商品下单按钮开始 -->
                                 @if($product->type === \App\Models\Product::TYPE_CROWDFUNDING)
                                     @if(Auth::check())
                                         @if($product->crowdfunding->status === \App\Models\CrowdfundingProduct::STATUS_FUNDING)
@@ -156,6 +163,33 @@
                             </div>
                         </div>
                     </div>
+                    <!-- 猜你喜欢开始 -->
+                    @if(count($similar) > 0)
+                        <div class="similar-products">
+                            <div class="title">猜你喜欢</div>
+                            <div class="row products-list">
+                                <!-- 这里不能使用 $product 作为 foreach 出来的变量，否则会覆盖掉当前页面的 $product 变量 -->
+                                @foreach($similar as $p)
+                                    <div class="col-3 product-item">
+                                        <div class="product-content">
+                                            <div class="top">
+                                                <div class="img">
+                                                    <a href="{{ route('products.show', ['product' => $p->id]) }}">
+                                                        <img src="{{ $p->image_url }}" alt="">
+                                                    </a>
+                                                </div>
+                                                <div class="price"><b>￥</b>{{ $p->price }}</div>
+                                                <div class="title">
+                                                    <a href="{{ route('products.show', ['product' => $p->id]) }}">{{ $p->title }}</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                    <!-- 猜你喜欢结束 -->
                 </div>
             </div>
         </div>
@@ -209,9 +243,9 @@
                 })
                     .then(function () { // 请求成功执行此回调
                         swal('加入购物车成功', '', 'success')
-                        .then(function() {
-                            location.href = '{{ route('cart.index') }}';
-                        });
+                            .then(function () {
+                                location.href = '{{ route('cart.index') }}';
+                            });
                     }, function (error) { // 请求失败执行此回调
                         if (error.response.status === 401) {
                             // http 状态码为 401 代表用户未登陆
@@ -223,7 +257,7 @@
                             var html = '<div>';
                             _.each(error.response.data.errors, function (errors) {
                                 _.each(errors, function (error) {
-                                    html += error+'<br>';
+                                    html += error + '<br>';
                                 })
                             });
                             html += '</div>';
@@ -296,7 +330,7 @@
                                 var html = '<div>';
                                 _.each(error.response.data.errors, function (errors) {
                                     _.each(errors, function (error) {
-                                        html += error+'<br>';
+                                        html += error + '<br>';
                                     })
                                 });
                                 html += '</div>';
