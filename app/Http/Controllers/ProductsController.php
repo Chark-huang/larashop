@@ -6,6 +6,7 @@ use App\Exceptions\InvalidRequestException;
 use App\Models\Category;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\SearchBuilders\ProductSearchBuilder;
 use App\Services\CategoryService;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
@@ -20,34 +21,12 @@ class ProductsController extends Controller
         $page = $request->input('page', 1);
         $perPage = 16;
         // 构建查询
-        $es_params = [
-            'index' => 'products',
-            'body' => [
-                'from' => ($page - 1) * $perPage,
-                'size' => $perPage,
-                'query' => [
-                    'bool' => [
-                        'filter' => [
-                            ['term' => ['on_sale' => true]]
-                        ]
-                    ]
-                ]
-            ]
-        ];
+        $builder = (new ProductSearchBuilder())->onSale()->paginate($perPage,$page);
 
         /**分类查询 START**/
         if ($request->input('category_id') && $category = Category::find($request->input('category_id'))) {
             // 如果是一个父类目,则通过path查询子类目
-            if ($category->is_directory) {
-                $es_params['body']['query']['bool']['filter'][] = [
-                    'prefix' => ['category_path' => $category->path . $category->id . '-']
-                ];
-            } else {
-                // 否则直接通过 category_id 筛选
-                $es_params['body']['query']['bool']['filter'][] = [
-                    'term' => ['category_id' => $category->id]
-                ];
-            }
+            $builder->category($category);
         }
         /**分类查询 END**/
 
@@ -57,11 +36,8 @@ class ProductsController extends Controller
         if ($order = $request->input('order', '')) {
             // 是否以 _asc 或者 _desc 结尾
             if (preg_match('/^(.+)_(asc|desc)$/', $order, $m)) {
-                // 如果字符串的开头是这 3 个字符串之一, 说明是一个合法的程序值
-                if (in_array($m[1], ['price', 'sold_count', 'rating'])) {
-                    // 根据传入的排序值来构造排序参数
-                    $es_params['body']['sort'] = [[$m[1] => $m[2]]];
-                }
+                // 调用查询构造器的排序
+                $builder->orderBy($m[1], $m[2]);
             }
         }
         /**顺序查询 END**/
@@ -70,50 +46,16 @@ class ProductsController extends Controller
         if ($search = $request->input('search', '')) {
             // 将搜索词根据空格拆分成数组, 并过滤掉空选项
             $keywords = array_filter(explode(' ', $search));
-
-            foreach ($keywords as $keyword) {
-                $es_params['body']['query']['bool']['must'][] = [
-                    'multi_match' => [
-                        'query' => $keyword,
-                        'fields' => [
-                            'title^3',
-                            'long_title^2',
-                            'category^2',
-                            'description',
-                            'skus_title',
-                            'skus_description',
-                            'properties_value',
-                        ]
-                    ]
-                ];
-            }
+            // 调用查询构造器的关键词筛选
+            $builder->keywords($keywords);
         }
         /**关键词查询 END**/
 
         /** 分面聚合数据获取 START **/
         // 只有当用户有输入搜索词或者使用了类目筛选的时候才会做聚合
         if ($search || isset($category)) {
-            $es_params['body']['aggs'] = [
-                'properties' => [
-                    'nested' => [
-                        'path' => 'properties',
-                    ],
-                    'aggs' => [
-                        'products_properties_name' =>[
-                            'terms' => [
-                                'field' => 'properties.name'
-                            ],
-                            'aggs'=> [
-                                'products_properties_value' => [
-                                    'terms' => [
-                                        'field' => 'properties.value'
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ];
+            // 调用查询构造器的分面搜索
+            $builder->aggregateProperties();
         }
         /** 分面聚合数据获取 END **/
         /** 分面查询 filter  START **/
@@ -127,24 +69,14 @@ class ProductsController extends Controller
                 // 将用户筛选的属性添加到数组中
                 $propertyFilters[$name] = $value;
 
-                // 添加到 filter 类型中
-                $es_params['body']['query']['bool']['filter'][] = [
-                    // 由于我们要筛选的是 nested 类型下的属性，因此需要用 nested 查询
-                    'nested' => [
-                        // 指明 nested 字段
-                        'path'  => 'properties',
-                        'query' => [
-                            ['term' => ['properties.search_value' => $filter]]
-//                            ['term' => ['properties.name' => $name]],
-//                            ['term' => ['properties.value' => $value]],
-                        ],
-                    ],
-                ];
+                // 调用查询构造器的属性筛选
+                $builder->propertyFilter($name, $value);
             }
         }
         /** 分面查询 filter  END **/
 
-        $result = app('es')->search($es_params);
+        // 最后通过 getParams() 方法取回构造好的查询参数
+        $result = app('es')->search($builder->getParams());
 
         // 通过 collect 函数将返回结果转为集合, 并通过集合的 pluck 方法去到返回的商品 ID 数组
         $productIds = collect($result['hits']['hits'])->pluck('_id')->all();
@@ -165,11 +97,11 @@ class ProductsController extends Controller
         // 如果返回结果里面有aggregations 字段, 说明做了分面搜索
         if (isset($result['aggregations'])){
             // 使用collect函数将返回的数据转为集合
-            $properties = collect($result['aggregations']['properties']['products_properties_name']['buckets'])->map(function ($bucket){
+            $properties = collect($result['aggregations']['properties']['properties']['buckets'])->map(function ($bucket){
                 // 通过 map 方法取出我们要的字段
                 return [
                     'key' => $bucket['key'],
-                    'values' => collect($bucket['products_properties_value']['buckets'])->pluck('key')->all(),
+                    'values' => collect($bucket['value']['buckets'])->pluck('key')->all(),
                 ];
             })->filter(function ($property) use ($propertyFilters){
                 // 过滤掉只剩下一个值 或者 已经在筛选条件里面的属性
