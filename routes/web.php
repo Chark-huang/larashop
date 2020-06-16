@@ -72,8 +72,4 @@ Route::post('installments/alipay/notify', 'InstallmentsController@alipayNotify')
 Route::post('payment/alipay/notify','PaymentController@alipayNotify')->name('payment.alipay.notify');
 Route::get('products/{product}','ProductsController@show')->name('products.show');
 
-Route::get('test',function (){
-    var_dump('test');
-//    \Illuminate\Support\Facades\Artisan::call('vendor:publish --provider="Encore\Admin\AdminServiceProvider"');
-});
 
