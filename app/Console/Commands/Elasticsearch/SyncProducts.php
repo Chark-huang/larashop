@@ -12,7 +12,8 @@ class SyncProducts extends Command
      *
      * @var string
      */
-    protected $signature = 'es:sync-products';
+    // 添加一个名为 index, 默认值为 products 的参数
+    protected $signature = 'es:sync-products {--index=products}';
 
     /**
      * The console command description.
@@ -40,7 +41,6 @@ class SyncProducts extends Command
     {
         // 获取 Elasticsearch 对象
         $es = app('es');
-
         Product::query()
             // 预加载 SKU 和 商品属性数据, 避免 N+1 问题
         ->with(['skus','properties'])
@@ -56,7 +56,8 @@ class SyncProducts extends Command
 
                     $req['body'][] = [
                         'index' => [
-                            '_index' => 'products',
+                            '_index' => $this->option('index'),
+                            '_type' => '_doc',
                             '_id' => $data['id'],
                         ]
                     ];
