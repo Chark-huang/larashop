@@ -234,6 +234,7 @@ return [
     //自定义配置
     //订单过期关闭时间(second)
     'order_ttl' => 1800,
+    'seckill_order_ttl' => 600,
 
     'ngrok_url' => env('NGROK_URL'),
 

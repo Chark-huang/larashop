@@ -44,6 +44,10 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('orders/{order}','OrdersController@show')->name('orders.show');
     Route::get('orders/{order}/review', 'OrdersController@review')->name('orders.review.show');
     Route::post('orders/{order}/review', 'OrdersController@sendReview')->name('orders.review.store');
+    //众筹订单路由
+    Route::post('crowdfunding_orders', 'OrdersController@crowdfunding')->name('crowdfunding_orders.store');
+    // 秒杀订单
+    Route::post('seckill_orders', 'OrdersController@seckill')->name('seckill_orders.store');
 
     //支付宝
     //支付路由
@@ -55,9 +59,6 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 
     //优惠券路由
     Route::get('coupon_codes/{code}', 'CouponCodesController@show')->name('coupon_codes.show');
-
-    //众筹订单路由
-    Route::post('crowdfunding_orders', 'OrdersController@crowdfunding')->name('crowdfunding_orders.store');
 
     //分期付款
     Route::get('installments','InstallmentsController@index')->name('installments.index');
