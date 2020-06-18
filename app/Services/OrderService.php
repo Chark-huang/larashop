@@ -144,11 +144,10 @@ class OrderService
         return $order;
     }
 
-    public function seckill(User $user, UserAddress $address, ProductSku $sku)
+    public function seckill(User $user, array $addressData, ProductSku $sku)
     {
-        $order = DB::transaction(function () use($user, $address, $sku){
-            //1.更新地址最后的使用时间
-            $address->update(['last_used_at' => Carbon::now()]);
+        $order = DB::transaction(function () use($user, $addressData, $sku){
+            //1.优化  :  不更新地址最后的使用时间
             //2.扣除对应的sku库存
             if ($sku->decreaseStock(1) <= 0){
                 throw new InvalidRequestException('该商品库存不足');
@@ -156,10 +155,10 @@ class OrderService
             //3.创建一个订单
             $order = new Order([
                 'address' => [
-                    'address'       => $address->full_address,
-                    'zip'           => $address->zip,
-                    'contact_name'  => $address->contact_name,
-                    'contact_phone' => $address->contact_phone,
+                    'address'       => $addressData['province'].$addressData['city'].$addressData['district'].$addressData['address'],
+                    'zip'           => $addressData['zip'],
+                    'contact_name'  => $addressData['contact_name'],
+                    'contact_phone' => $addressData['contact_phone'],
                 ],
                 'remark'       => '',
                 'total_amount' => $sku->price,
