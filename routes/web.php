@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/','/products')->name('root');
 Route::get('products','ProductsController@index')->name('products.index');
+// 秒杀订单
+Route::post('seckill_orders', 'OrdersController@seckill')->name('seckill_orders.store');
 
 Auth::routes(['verify' => true]);
 
@@ -46,8 +48,6 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::post('orders/{order}/review', 'OrdersController@sendReview')->name('orders.review.store');
     //众筹订单路由
     Route::post('crowdfunding_orders', 'OrdersController@crowdfunding')->name('crowdfunding_orders.store');
-    // 秒杀订单
-    Route::post('seckill_orders', 'OrdersController@seckill')->name('seckill_orders.store');
 
     //支付宝
     //支付路由
@@ -72,5 +72,4 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 Route::post('installments/alipay/notify', 'InstallmentsController@alipayNotify')->name('installments.alipay.notify');
 Route::post('payment/alipay/notify','PaymentController@alipayNotify')->name('payment.alipay.notify');
 Route::get('products/{product}','ProductsController@show')->name('products.show');
-
 
